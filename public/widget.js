@@ -204,6 +204,9 @@ function createWidgetContainer() {
 
 // Initialize the widget
 function initTavusWidget(config = {}) {
+    // Clean up API URL (remove trailing slash)
+    const apiUrl = (config.apiUrl || 'https://your-vercel-domain.vercel.app').replace(/\/$/, '');
+
     // Merge default values with provided config
     const widgetConfig = {
         ...WIDGET_CONFIG,
@@ -259,7 +262,14 @@ function initTavusWidget(config = {}) {
             // Request permissions before starting the chat
             await requestPermissions();
 
-            const response = await fetch(`${config.apiUrl || 'https://your-vercel-domain.vercel.app'}/api/create-conversation`, {
+            console.log('Creating conversation with config:', {
+                replica_id: widgetConfig.defaultValues.replica_id,
+                conversation_name: widgetConfig.defaultValues.conversation_name,
+                persona_id: widgetConfig.defaultValues.persona_id,
+                conversational_context: widgetConfig.defaultValues.conversational_context
+            });
+
+            const response = await fetch(`${apiUrl}/api/create-conversation`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -272,9 +282,29 @@ function initTavusWidget(config = {}) {
                 })
             });
             
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                console.error('API Error:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    error: errorData
+                });
+                throw new Error(`API Error: ${response.status} ${response.statusText}`);
+            }
+
             const data = await response.json();
+            console.log('API Response:', data);
+
             if (data.error) {
-                alert('Failed to start chat. Please try again.');
+                console.error('API returned error:', data.error);
+                alert('Failed to start chat: ' + (data.error.message || data.error));
+                resetButton();
+                return;
+            }
+
+            if (!data.conversation_id || !data.join_url) {
+                console.error('Invalid API response:', data);
+                alert('Invalid response from server. Please try again.');
                 resetButton();
                 return;
             }
@@ -285,8 +315,8 @@ function initTavusWidget(config = {}) {
             overlay.classList.add('active');
             resetButton();
         } catch (error) {
-            console.error('Error:', error);
-            alert('Failed to start chat. Please try again.');
+            console.error('Error starting chat:', error);
+            alert('Failed to start chat: ' + error.message);
             resetButton();
         }
     });
@@ -299,7 +329,7 @@ function initTavusWidget(config = {}) {
     async function closeChat() {
         if (currentConversationId) {
             try {
-                await fetch(`${config.apiUrl || 'https://your-vercel-domain.vercel.app'}/api/end-conversation/${currentConversationId}`, {
+                await fetch(`${apiUrl}/api/end-conversation/${currentConversationId}`, {
                     method: 'POST'
                 });
             } catch (error) {
