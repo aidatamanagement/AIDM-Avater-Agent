@@ -1,6 +1,12 @@
 // Widget configuration
 const WIDGET_CONFIG = {
     containerId: 'tavus-widget-container',
+    defaultValues: {
+        replica_id: "r9fa0878977a",
+        conversation_name: "Tavus Chat Session",
+        persona_id: "",
+        conversational_context: ""
+    },
     styles: `
         .tavus-widget {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -198,6 +204,15 @@ function createWidgetContainer() {
 
 // Initialize the widget
 function initTavusWidget(config = {}) {
+    // Merge default values with provided config
+    const widgetConfig = {
+        ...WIDGET_CONFIG,
+        defaultValues: {
+            ...WIDGET_CONFIG.defaultValues,
+            ...config.defaultValues
+        }
+    };
+
     // Inject styles
     const styleSheet = document.createElement('style');
     styleSheet.textContent = WIDGET_CONFIG.styles;
@@ -248,7 +263,13 @@ function initTavusWidget(config = {}) {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
-                }
+                },
+                body: JSON.stringify({
+                    replica_id: widgetConfig.defaultValues.replica_id,
+                    conversation_name: widgetConfig.defaultValues.conversation_name,
+                    persona_id: widgetConfig.defaultValues.persona_id,
+                    conversational_context: widgetConfig.defaultValues.conversational_context
+                })
             });
             
             const data = await response.json();
