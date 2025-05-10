@@ -12,6 +12,8 @@ const WIDGET_CONFIG = {
             width: 100%;
             height: 100%;
             min-height: 400px;
+            display: flex;
+            flex-direction: column;
         }
 
         .tavus-video-container {
@@ -39,11 +41,12 @@ const WIDGET_CONFIG = {
         .tavus-content {
             position: relative;
             z-index: 1;
-            height: 100%;
+            flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
             padding: 20px;
+            margin-bottom: 20px;
         }
 
         .tavus-start-chat-btn {
@@ -99,12 +102,15 @@ const WIDGET_CONFIG = {
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 90%;
-            height: 90%;
+            width: 95%;
+            height: 95%;
+            max-width: 95vw;
+            max-height: 95vh;
             background-color: white;
             border-radius: 12px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
             z-index: 1000;
+            overflow: hidden;
         }
 
         .tavus-chat-popup.active {
@@ -139,14 +145,8 @@ const WIDGET_CONFIG = {
         .tavus-chat-content {
             height: 100%;
             padding: 20px;
-            overflow-y: auto;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
+            overflow: hidden;
             border-radius: 12px;
-        }
-
-        .tavus-chat-content::-webkit-scrollbar {
-            display: none;
         }
 
         .tavus-overlay {
@@ -220,6 +220,19 @@ function initTavusWidget(config = {}) {
     const overlay = container.querySelector('.tavus-overlay');
     const chatFrame = container.querySelector('#tavusChatFrame');
     let currentConversationId = null;
+    let permissionsRequested = false;
+
+    // Function to request permissions once
+    async function requestPermissions() {
+        if (permissionsRequested) return;
+        
+        try {
+            await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            permissionsRequested = true;
+        } catch (error) {
+            console.error('Error requesting permissions:', error);
+        }
+    }
 
     startChatBtn.addEventListener('click', async () => {
         if (startChatBtn.classList.contains('loading')) return;
@@ -228,6 +241,9 @@ function initTavusWidget(config = {}) {
         buttonText.textContent = 'Connecting with agent...';
 
         try {
+            // Request permissions before starting the chat
+            await requestPermissions();
+
             const response = await fetch(`${config.apiUrl || 'https://your-vercel-domain.vercel.app'}/api/create-conversation`, {
                 method: 'POST',
                 headers: {
@@ -288,3 +304,5 @@ function initTavusWidget(config = {}) {
 
 // Export the initialization function
 window.initTavusWidget = initTavusWidget; 
+
+
