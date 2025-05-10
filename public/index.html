@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tavus Chat</title>
+    <link rel="stylesheet" type="text/css" href="./styles/home.css">
+</head>
+<body>
+    <div class="video-container">
+        <video autoplay muted loop>
+            <source src="https://cdn.prod.website-files.com/63b2f566abde4cad39ba419f%2F67b5222642c2133d9163ce80_newmike-transcode.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+
+    <button class="start-chat-btn">
+        <span class="loading-spinner"></span>
+        <span class="button-text">Start Chatting Now</span>
+    </button>
+
+    <div class="overlay"></div>
+    <div class="chat-popup">
+        <button class="close-btn">&times;</button>
+        <div class="chat-content">
+            <iframe id="chatFrame" style="width: 100%; height: 100%; border: none;" allow="camera; microphone; display-capture"></iframe>
+        </div>
+    </div>
+
+    <script>
+        const startChatBtn = document.querySelector('.start-chat-btn');
+        const buttonText = document.querySelector('.button-text');
+        const chatPopup = document.querySelector('.chat-popup');
+        const closeBtn = document.querySelector('.close-btn');
+        const overlay = document.querySelector('.overlay');
+        const chatFrame = document.getElementById('chatFrame');
+        let currentConversationId = null;
+
+        startChatBtn.addEventListener('click', async () => {
+            if (startChatBtn.classList.contains('loading')) return;
+            
+            startChatBtn.classList.add('loading');
+            buttonText.textContent = 'Connecting with agent...';
+
+            try {
+                const response = await fetch('/api/create-conversation', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                if (data.error) {
+                    alert('Failed to start chat. Please try again.');
+                    resetButton();
+                    return;
+                }
+
+                currentConversationId = data.conversation_id;
+                chatFrame.src = data.join_url;
+                chatPopup.classList.add('active');
+                overlay.classList.add('active');
+                resetButton();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to start chat. Please try again.');
+                resetButton();
+            }
+        });
+
+        function resetButton() {
+            startChatBtn.classList.remove('loading');
+            buttonText.textContent = 'Start Chatting Now';
+        }
+
+        async function closeChat() {
+            if (currentConversationId) {
+                try {
+                    await fetch(`/api/end-conversation/${currentConversationId}`, {
+                        method: 'POST'
+                    });
+                } catch (error) {
+                    console.error('Error ending conversation:', error);
+                }
+                currentConversationId = null;
+            }
+
+            chatPopup.classList.remove('active');
+            overlay.classList.remove('active');
+            chatFrame.src = 'about:blank';
+        }
+
+        closeBtn.addEventListener('click', closeChat);
+        overlay.addEventListener('click', closeChat);
+
+        window.addEventListener('message', function(event) {
+            if (event.data === 'meeting-ended') {
+                closeChat();
+            }
+        });
+    </script>
+</body>
+</html> 
