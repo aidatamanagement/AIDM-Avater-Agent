@@ -9,7 +9,7 @@ const WIDGET_CONFIG = {
     },
     styles: `
         .tavus-widget {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            font-family: 'Fixeldisplay', Arial, sans-serif;
             background: white;
             border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
@@ -56,12 +56,13 @@ const WIDGET_CONFIG = {
         }
 
         .tavus-start-chat-btn {
-            padding: 15px 30px;
-            font-size: 18px;
+            padding: .80rem 1.25rem;
+            font-size: .875rem;
+            font-weight: 600;
             background-color: #115E49;
             color: white;
             border: none;
-            border-radius: 25px;
+            border-radius: .75em;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
@@ -69,6 +70,8 @@ const WIDGET_CONFIG = {
             gap: 10px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             margin: 0 auto;
+            letter-spacing: .5px;
+            text-transform: uppercase;
         }
 
         .tavus-start-chat-btn:hover {
