@@ -184,8 +184,7 @@ function createWidgetContainer() {
     container.innerHTML = `
         <div class="tavus-video-container">
             <video autoplay muted loop playsinline>
-                <source src="https://cdn.prod.website-files.com/63b2f566abde4cad39ba419f%2F67b5222642c2133d9163ce80_newmike-transcode.mp4" type="video/mp4">
-                Your browser does not support the video tag.
+                <source src="https://aidm-avater-agent.vercel.app/public/AIDM%20business%20Consultant.mp4" type="video/mp4">
             </video>
         </div>
         <div class="tavus-content">
@@ -387,8 +386,7 @@ function initTavusWidget(config = {}) {
         <div class="tavus-widget">
             <div class="tavus-video-container">
                 <video autoplay muted loop playsinline>
-                    <source src="https://cdn.prod.website-files.com/63b2f566abde4cad39ba419f%2F67b5222642c2133d9163ce80_newmike-transcode.mp4" type="video/mp4">
-                    Your browser does not support the video tag.
+                    <source src="https://aidm-avater-agent.vercel.app/public/AIDM%20business%20Consultant.mp4" type="video/mp4">
                 </video>
             </div>
             <div class="tavus-content">
